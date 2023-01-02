@@ -7,7 +7,7 @@ import configparser
 window = tk.Tk()
 toolbar = ttk.Frame(window)
 toolbar.pack(side="top", fill="x")
-window.title("Discord Webhook")
+window.title("Discord Webhook Publisher")
 
 def get_url():
     config.read('config.ini')
@@ -50,8 +50,15 @@ def edit_settings(window, url, debug):
         on_button_click()
     window.destroy()
 
-def show_help():
-    pass
+# function that displays all shortcut keys
+def show_shortcuts():
+    shortcuts_window = tk.Toplevel(window)
+    shortcuts_window.title("Keyboard Shortcuts")
+
+    # Create a label with the message
+    message = "Press Ctrl+Enter to send the message (if you don't feel like pressing send)"
+    label = tk.Label(shortcuts_window, text=message)
+    label.pack()
 
 # functions to send the hook
 def send_message(message):
@@ -71,12 +78,21 @@ text_box = tk.Text(window)
 text_box.pack()
 text_box.bind("<Control-Return>", lambda event: on_button_click())
 
-# buttons in toolbar
-edit_button = ttk.Button(toolbar, text="Edit", command=show_edit)
-edit_button.pack(side="left")
+# create the toolobar menu
+settings_menu = tk.Menu(toolbar, tearoff=0)
+help_menu = tk.Menu(toolbar, tearoff=0)
 
-help_button = ttk.Button(toolbar, text="Help", command=show_help)
-help_button.pack(side="left")
+# Create the "Webhook url" button under a dropdown called "Settings""
+settings_menu.add_command(label="Webhook url", command=show_edit)
+
+settings_dropdown = ttk.Menubutton(toolbar, text="Settings", menu=settings_menu)
+settings_dropdown.pack(side="left")
+
+# Create the "Shortcuts" button under a dropdown called "Help"
+help_menu.add_command(label="Shortcuts", command=show_shortcuts)
+
+help_dropdown = ttk.Menubutton(toolbar, text="Help", menu=help_menu)
+help_dropdown.pack(side="left")
 
 # button that sends hook
 send_button = tk.Button(window, text="Send", command=on_button_click)
