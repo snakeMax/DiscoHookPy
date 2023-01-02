@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import requests
+import re
 import configparser
 
 # init
@@ -9,11 +10,17 @@ toolbar = ttk.Frame(window)
 toolbar.pack(side="top", fill="x")
 window.title("Discord Webhook Publisher")
 
+def is_valid_url(url):
+    regex = re.compile(r'^(?:http|ftp)s?://', re.IGNORECASE)
+    return re.match(regex, url) is not None
+
 def get_url():
     config.read('config.ini')
-    if 'WebhookURL' in config['DEFAULT']:
+    if 'WebhookURL' in config['DEFAULT'] and is_valid_url(config['DEFAULT']['WebhookURL']):
         url = config['DEFAULT']['WebhookURL']
+        print("URL found")
     else:
+        print("Invalid URL, or none was provided")
         url = "none"
     return url
 
