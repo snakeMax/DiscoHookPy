@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import colorchooser
 import requests
 import re
 import configparser
@@ -68,17 +69,27 @@ def show_shortcuts():
     label.pack()
 
 # functions to send the hook
-def send_message(message):
-    data = {"content": message}
-    webhook_url = get_url()
-    if webhook_url == "none":
-        show_edit()
+def send_message(url, message, color):
+
+    hex_color = color
+    color = int("0x" + hex_color[1:], 16)
+
+    if is_valid_url(url):
+        data = {
+        "embeds": [{
+            "title": "Message",
+            "color": color,
+            "description": message
+        }]
+        }
+        requests.post(url, json=data)
     else:
-        requests.post(webhook_url, json=data)
+        show_edit()
+
 
 def on_button_click():
     message = text_box.get("1.0", "end")
-    send_message(message)
+    send_message(get_url(), message, color_picker.get())
 
 # textbox where content is typed by user (must be under send function)
 text_box = tk.Text(window)
@@ -100,6 +111,19 @@ help_menu.add_command(label="Shortcuts", command=show_shortcuts)
 
 help_dropdown = ttk.Menubutton(toolbar, text="Help", menu=help_menu)
 help_dropdown.pack(side="left")
+
+# color picker
+color_picker = tk.StringVar(value="#ff0000")
+color_button = tk.Button(toolbar, bg=color_picker.get(), command=lambda: color_picker.set(colorchooser.askcolor()[1]))
+color_button.pack(side="right")
+
+color_button.config(height=2, width=5)
+
+color_label = tk.Label(toolbar, text="Color:")
+color_label.pack(side="right")
+
+# Update the button's background color when the color picker variable is changed
+color_picker.trace("w", lambda *args: color_button.config(bg=color_picker.get()))
 
 # button that sends hook
 send_button = tk.Button(window, text="Send", command=on_button_click)
