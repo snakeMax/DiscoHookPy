@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import colorchooser
 import requests
 import re
+import json
 import configparser
 
 # init
@@ -25,11 +26,20 @@ def get_url():
         url = "none"
     return url
 
-# init
+
+# init var
 config = configparser.ConfigParser()
 webhook_url = get_url()
+webhook_urls = ["Choose"]
 
-# functions executed from toolbar buttons
+# save webhooks
+def save_webhook_urls():
+    # Serialize the list of webhook URLs to a JSON string
+    webhook_urls_json = json.dumps(webhook_urls)
+
+    # Write the JSON string to the config file
+    with open("config.json", "w") as config_file:
+        config_file.write(webhook_urls_json)
 
 # Define the function to edit settings
 def show_edit(debug=False):
@@ -94,9 +104,9 @@ def on_button_click():
 # textbox where content is typed by user (must be under send function)
 text_box = tk.Text(window)
 text_box.pack()
-text_box.bind("<Control-Return>", lambda event: on_button_click())
+text_box.bind("<Control-Return>", lambda: on_button_click())
 
-# create the toolobar menu
+# create the toolobar menu with dropdowns
 settings_menu = tk.Menu(toolbar, tearoff=0)
 help_menu = tk.Menu(toolbar, tearoff=0)
 
@@ -111,6 +121,33 @@ help_menu.add_command(label="Shortcuts", command=show_shortcuts)
 
 help_dropdown = ttk.Menubutton(toolbar, text="Help", menu=help_menu)
 help_dropdown.pack(side="left")
+
+# Create the webhook URL variable and dropdown menu
+webhook_url_var = tk.StringVar(value=webhook_urls[0])
+webhook_url_menu = ttk.OptionMenu(toolbar, webhook_url_var, *webhook_urls)
+webhook_url_menu.pack(side="left")
+
+# Add a label to display the "Webhook URL:" text
+webhook_url_label = tk.Label(toolbar, text="Webhook URL:")
+webhook_url_label.pack(side="left")
+
+# Create the URL text field and "Add" button
+def add_url():
+    new_url = url_text_field.get()
+    webhook_urls.append(new_url)
+    webhook_url_menu.set_menu(*webhook_urls)
+    url_text_field.delete()
+
+
+url_text_field = tk.Entry(toolbar)
+url_text_field.pack(side="left")
+add_button = tk.Button(toolbar, text="Add", command=add_url)
+add_button.pack(side="left")
+
+# Define the function to add a new URL to the list
+
+
+
 
 # color picker
 color_picker = tk.StringVar(value="#ff0000")
